@@ -22,6 +22,10 @@ This is cool as it could also use fetch for kv, r2, fs, etc. It could simply use
 
 The way it's done now in [example-html](example-html.html) I need to just make a server-side parser that:
 
-- at build time, find script env and script server (one or more) and turns this part into a js file with the credentials provided
+- at build time, find all script, script env and script server (one or more) and turns this part into a js file with the credentials provided
 - at run time, the js is ran and the original html replaces the server part with a promise that immediately resolves the data
 - with some magic, maybe we can even run further JS server-side to actually output static HTML with all data filled in
+
+# After thought
+
+Maybe this isn't worth it and is overly complex. In my current workers I just fetch a HTML template and replace some values using `string.replace`. This works very well. Imagine that I would keep the same principle so I can still see the HTML, but I would conventionalize the strings to replace and auto-replace them? That could be cool. It's a good thing since HTML is visual which is human-only. We need a JSON endpoint as that's gonna be the main user a while from now. Maybe this is solving the wrong problem after all and we should focus on making human frontends automatically based on server specs.
