@@ -17,3 +17,11 @@ The great thing about HTML is that it can run JS inline. That means we could als
 Fetch also works on the frontend. In HTML only mode it would simply have no auth and thats fine if the API supports that with a tiny ratelimit. In the backend, however, auth can be auto-provided by wrapping the fetch function and providing this based on the host and auth.
 
 This is cool as it could also use fetch for kv, r2, fs, etc. It could simply use a simple server for that, that provides dummy-data that is tied to the IP if you are loading this thing as HTML. When rendered in the server, it'd be tied to a configuration provided in the `<script type="application/json"></script>` at the head.
+
+# Conclusion
+
+The way it's done now in [example-html](example-html.html) I need to just make a server-side parser that:
+
+- at build time, find script env and script server (one or more) and turns this part into a js file with the credentials provided
+- at run time, the js is ran and the original html replaces the server part with a promise that immediately resolves the data
+- with some magic, maybe we can even run further JS server-side to actually output static HTML with all data filled in
