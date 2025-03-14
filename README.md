@@ -1,3 +1,5 @@
+# The CJS idea
+
 Idea spawned here after explaining I pretty much only use HTML, JS, and tailwind to someone: https://claude.ai/chat/4a21b364-74dd-47a3-94c2-aa4884d4d91f
 
 The idea would be to create a cloudflare worker that returns HTML based on a vercel-like folder structure with params. Just like with monoflare, it'd be possible to have a worker based on a single file. We'd define the available environment in `<% type Env = {kv: KvNamespace; } %>` at the top!
@@ -5,6 +7,8 @@ The idea would be to create a cloudflare worker that returns HTML based on a ver
 This could be an augmentation of the monoflare concept. If you want html, its convenient to do things like this because you can easily open your HTML file without backend as well. It also would give options to bring back ctml: https://github.com/janwilmake/ctml. EJS also supports includes: https://github.com/mde/ejs?tab=readme-ov-file#includes
 
 It'd be great to define workers like this, since sometimes you want regular HTML. Then, adding data would simply be a small addition. Besides, we can set up a rule that, incase you just want JSON, it can also return that under `[endpoint].json` incase it's defined in a certain way.
+
+# Deciding not to use EJS
 
 After trying a little I found maybe ejs is not the way to go because it creates ugly HTML if you'd render it locally as HTML. Maybe, pure HTML would be even better, given we can detect which parts are required to be rendered on the backend.
 
