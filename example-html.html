@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Profile Cards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="application/json">
+        { "kv": { name: "kv1" } }
+    </script>
+</head>
+
+<body class="bg-gray-100 font-sans p-5">
+    <div class="container mx-auto max-w-7xl">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">GitHub Profile Cards</h1>
+        </header>
+
+        <div id="error-container"></div>
+
+        <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            <div class="text-center py-12 text-lg text-gray-600">Loading GitHub profiles...</div>
+        </div>
+    </div>
+
+    <script>
+        // Function to create profile cards (used by both scripts)
+        function createProfileCard(profile) {
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-lg shadow-md p-5 transition-transform duration-300 hover:-translate-y-1';
+
+            card.innerHTML = `
+                <div class="flex items-center mb-4">
+                    <img src="${profile.avatar_url}" alt="${profile.login}'s avatar" class="w-14 h-14 rounded-full mr-4">
+                    <div>
+                        <h3 class="text-lg font-semibold m-0">${profile.name || profile.login}</h3>
+                        <p class="text-gray-600">@${profile.login}</p>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <p class="text-gray-800 text-sm leading-relaxed">${profile.bio || 'No bio available'}</p>
+                </div>
+                <div class="flex justify-between border-t border-gray-200 pt-4">
+                    <div class="text-center">
+                        <div class="font-semibold text-base text-gray-800">${profile.public_repos}</div>
+                        <div class="text-xs text-gray-600">Repos</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-semibold text-base text-gray-800">${profile.followers}</div>
+                        <div class="text-xs text-gray-600">Followers</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="font-semibold text-base text-gray-800">${profile.following}</div>
+                        <div class="text-xs text-gray-600">Following</div>
+                    </div>
+                </div>
+                <a href="${profile.html_url}" target="_blank" class="block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded mt-4 font-medium">View Profile</a>
+            `;
+
+            return card;
+        }
+
+        // Initialize global data container
+        window.data = {
+            loaded: false,
+            profiles: [],
+            error: null
+        };
+
+        // Function to render profiles (used by client-side script)
+        function renderProfiles() {
+            const cardsContainer = document.getElementById('cards-container');
+            const errorContainer = document.getElementById('error-container');
+
+            // Check if data is available from the backend
+            if (window.data && window.data.profiles && window.data.profiles.length > 0) {
+                // Clear loading message
+                cardsContainer.innerHTML = '';
+
+                // Render each profile card
+                window.data.profiles.forEach(profile => {
+                    const card = createProfileCard(profile);
+                    cardsContainer.appendChild(card);
+                });
+            } else {
+                // If no data is available, display an error message
+                cardsContainer.innerHTML = '';
+                errorContainer.innerHTML = `
+                    <div class="text-center p-5 text-red-600 bg-red-50 rounded-lg mb-5">
+                        Failed to load GitHub profiles. ${window.data && window.data.error ? window.data.error : 'Please try again later.'}
+                    </div>
+                `;
+            }
+        }
+    </script>
+
+    <script server>
+        // This script runs on the backend to fetch initial data
+
+        // Define a list of popular GitHub usernames to fetch
+        const usernames = [
+            'torvalds',
+            'gaearon',
+            'sindresorhus',
+            'yyx990803',
+            'defunkt',
+            'DHH',
+            'TryGhost',
+            'wycats'
+        ];
+
+        // Set up a promise that will be resolved when data is loaded
+        window.data = new Promise(async (resolve, reject) => {
+            try {
+                const profiles = [];
+
+                // In a real app, you'd use the GitHub API with proper authentication
+                // For demonstration, we're making requests to the public API
+                for (const username of usernames) {
+                    const response = await fetch(`https://api.github.com/users/${username}`);
+
+                    if (response.ok) {
+                        const userData = await response.json();
+                        profiles.push(userData);
+                    } else {
+                        console.error(`Failed to fetch data for ${username}`);
+                    }
+                }
+
+                // Resolve the promise with the profiles
+                resolve({ profiles, loaded: true });
+            } catch (error) {
+                console.error('Error fetching GitHub profiles:', error);
+
+                // Reject the promise with the error
+                reject(error);
+            }
+        });
+    </script>
+
+    <script>
+        // This script runs after the server script has completed
+        // It will only execute after the dataLoadedPromise is resolved
+        window.data.then(data => renderProfiles())
+    </script>
+</body>
+
+</html>
